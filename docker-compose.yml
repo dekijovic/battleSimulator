@@ -1,0 +1,23 @@
+version: '3'
+services:
+  web:
+    container_name: web_bs
+    image: httpd
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - web_app:/var/www/html/
+
+  php:
+    image: php:7.3-fpm
+    container_name: php_bs
+    volumes:
+      - web_app:/var/www/html/
+  db:
+    container_name: db_bs
+    image: mysql:5.7
+networks:
+  bs:
+volumes:
+  web_app:
