@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Storage\Games\GameRepository;
+use App\Storage\GamesInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +25,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        $this->app->bind (GamesInterface::class, GameRepository::class);
     }
 }
