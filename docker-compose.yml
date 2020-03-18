@@ -9,19 +9,23 @@ services:
       - "./devops/nginx/nginx.conf:/etc/nginx/nginx.conf"
       - "./devops/nginx/conf.d:/etc/nginx/conf.d"
       - "./:/var/www/html"
-    depends_on:
+    links:
       - php
+      - db
     networks:
       - bs
     command: [nginx-debug, '-g', 'daemon off;']
 
   php:
-    image: php:7.3-fpm
+    build:
+      context: ./devops/php
     expose:
       - 9000
 #    ports:
 #      - "9000:9000"
     container_name: php_bs
+    links:
+      - db
     volumes:
       - "./:/var/www/html"
     networks:
@@ -34,12 +38,14 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./db/:/var/lib/mysql
+      - ./dbdata/:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=123456
       - MYSQL_DATABASE=battle
+      - MYSQL_USER=battle
+      - MYSQL_PASSWORD=battle
+    networks:
+      - bs
 networks:
   bs:
     driver: bridge
-volumes:
-  web_app:
