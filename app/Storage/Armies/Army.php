@@ -2,8 +2,14 @@
 
 namespace App\Storage\Armies;
 
+use App\Storage\Games\Game;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Army
+ *
+ * @property Game $game
+ */
 class Army extends Model
 {
     protected $table = 'armies';
@@ -14,4 +20,11 @@ class Army extends Model
         'game_id',
         'strategy'
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function game(){
+       return  $this->belongsTo( Game::class);
+    }
 }

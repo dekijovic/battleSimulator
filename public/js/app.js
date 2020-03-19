@@ -2058,6 +2058,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ManageGame",
   data: function data() {
@@ -2105,7 +2109,19 @@ __webpack_require__.r(__webpack_exports__);
         _this3.game = response.data, _this3.getArmies(_this3.id);
       });
     },
-    battleStatus: function battleStatus() {}
+    battleStatus: function battleStatus() {
+      if (this.game.status === "START") {
+        this.game.status = "PROCESS";
+        this.updateGame();
+      }
+    },
+    updateGame: function updateGame() {
+      var _this4 = this;
+
+      axios.put("/game/".concat(this.id), this.game).then(function (response) {
+        _this4.game = response.data;
+      });
+    }
   }
 });
 
@@ -37776,21 +37792,43 @@ var render = function() {
                 "button",
                 {
                   staticClass: "btn btn-primary btn-lg btn-block btn-dark",
-                  attrs: { type: "button" }
+                  attrs: { type: "button" },
+                  on: { click: _vm.battleStatus }
                 },
                 [_vm._v(" Start Battle")]
               )
             : _vm._e(),
           _vm._v(" "),
           _vm.game.status === "PROCESS"
-            ? _c(
-                "button",
-                {
-                  staticClass: "btn btn-primary btn-lg btn-block btn-dark",
-                  attrs: { type: "button" }
-                },
-                [_vm._v(" Pause Battle")]
-              )
+            ? _c("div", { staticClass: "row" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary btn-lg btn-block btn-dark",
+                    attrs: { type: "button" },
+                    on: { click: _vm.battleStatus }
+                  },
+                  [_vm._v(" Pause Battle")]
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary btn-lg btn-blue",
+                    attrs: { type: "button" }
+                  },
+                  [_vm._v(" Turn ")]
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary btn-lg btn-blue",
+                    attrs: { type: "button" }
+                  },
+                  [_vm._v(" Automatic Play ")]
+                )
+              ])
             : _vm._e()
         ])
       : _c("div", { staticClass: "text-lg-center border-bottom" }, [

@@ -40,8 +40,12 @@
         </div>
     </div>
     <div class="row" v-if="this.armies.length > 4">
-        <button v-if="game.status === 'START'" type="button" class="btn btn-primary btn-lg btn-block btn-dark"> Start Battle</button>
-        <button v-if="game.status === 'PROCESS'" type="button" class="btn btn-primary btn-lg btn-block btn-dark"> Pause Battle</button>
+        <button v-if="game.status === 'START'" type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="battleStatus"> Start Battle</button>
+        <div class="row" v-if="game.status === 'PROCESS'">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="battleStatus"> Pause Battle</button>
+            <button type="button" class="btn btn-primary btn-lg btn-blue"> Turn </button>
+            <button type="button" class="btn btn-primary btn-lg btn-blue"> Automatic Play </button>
+        </div>
     </div>
     <div class="text-lg-center border-bottom" v-else>
         <b>In order to start the battle 5 armies must be added</b>
@@ -99,6 +103,17 @@ export default {
         },
         battleStatus(){
 
+            if(this.game.status === "START"){
+                this.game.status = "PROCESS"
+                this.updateGame();
+            }
+
+        },
+        updateGame(){
+            axios.put(`/game/${ this.id}`, this.game)
+                .then((response) => {
+                    this.game = response.data
+                })
         }
     }
 

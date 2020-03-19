@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Commands\Games\CreateGame;
+use App\Commands\Games\UpdateGame;
 use App\Storage\GamesInterface;
 use Illuminate\Http\Request;
 
@@ -29,6 +30,19 @@ class GameController extends Controller
     public function store(Request $request)
     {
         $result = dispatch_now(new CreateGame($request->all()));
+        return $this->json($result);
+    }
+
+    /**
+     * Update resource.
+     *
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
+        $result = dispatch_now(new UpdateGame($id, $request->all()));
         return $this->json($result);
     }
 
