@@ -41,14 +41,23 @@
     </div>
     <div class="row" v-if="this.armies.length > 4">
         <button v-if="game.status === 'START'" type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="battleStatus"> Start Battle</button>
-        <div class="row" v-if="game.status === 'PROCESS'">
-            <button type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="battleStatus"> Pause Battle</button>
-            <button type="button" class="btn btn-primary btn-lg btn-blue"> Turn </button>
-            <button type="button" class="btn btn-primary btn-lg btn-blue"> Automatic Play </button>
+        <div class="row col-12" v-if="game.status === 'PROCESS'">
+            <button type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="battleStatus"> Restart Battle</button>
+            <button type="button" class="btn btn-primary btn-lg btn-blue m-2" @click="turn"> Turn </button>
+            <button type="button" class="btn btn-primary btn-lg btn-blue m-2" @click="automaticPlay"> Automatic Play </button>
         </div>
     </div>
     <div class="text-lg-center border-bottom" v-else>
         <b>In order to start the battle 5 armies must be added</b>
+    </div>
+    <div class="row">
+        <b>Battle log</b>
+        <div class="row container">
+            <ul v-for="logitem in log">
+                <li></li>
+            </ul>
+
+        </div>
     </div>
 </div>
 </template>
@@ -68,7 +77,8 @@ export default {
                 units:0,
                 strategy:'RANDOM'
             },
-            armies: []
+            armies: [],
+            log:[]
         }
     },
     computed: {
@@ -107,6 +117,10 @@ export default {
                 this.game.status = "PROCESS"
                 this.updateGame();
             }
+            if(this.game.status === "PROCESS"){
+                this.game.status = "START"
+                this.updateGame();
+            }
 
         },
         updateGame(){
@@ -114,6 +128,13 @@ export default {
                 .then((response) => {
                     this.game = response.data
                 })
+        },
+        turn(){
+
+        },
+        automaticPlay(){
+            alert('not finished')
+
         }
     }
 

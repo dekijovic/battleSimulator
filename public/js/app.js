@@ -2062,6 +2062,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ManageGame",
   data: function data() {
@@ -2076,7 +2085,8 @@ __webpack_require__.r(__webpack_exports__);
         units: 0,
         strategy: 'RANDOM'
       },
-      armies: []
+      armies: [],
+      log: []
     };
   },
   computed: {},
@@ -2114,6 +2124,11 @@ __webpack_require__.r(__webpack_exports__);
         this.game.status = "PROCESS";
         this.updateGame();
       }
+
+      if (this.game.status === "PROCESS") {
+        this.game.status = "START";
+        this.updateGame();
+      }
     },
     updateGame: function updateGame() {
       var _this4 = this;
@@ -2121,6 +2136,10 @@ __webpack_require__.r(__webpack_exports__);
       axios.put("/game/".concat(this.id), this.game).then(function (response) {
         _this4.game = response.data;
       });
+    },
+    turn: function turn() {},
+    automaticPlay: function automaticPlay() {
+      alert('not finished');
     }
   }
 });
@@ -37800,7 +37819,7 @@ var render = function() {
             : _vm._e(),
           _vm._v(" "),
           _vm.game.status === "PROCESS"
-            ? _c("div", { staticClass: "row" }, [
+            ? _c("div", { staticClass: "row col-12" }, [
                 _c(
                   "button",
                   {
@@ -37808,14 +37827,15 @@ var render = function() {
                     attrs: { type: "button" },
                     on: { click: _vm.battleStatus }
                   },
-                  [_vm._v(" Pause Battle")]
+                  [_vm._v(" Restart Battle")]
                 ),
                 _vm._v(" "),
                 _c(
                   "button",
                   {
-                    staticClass: "btn btn-primary btn-lg btn-blue",
-                    attrs: { type: "button" }
+                    staticClass: "btn btn-primary btn-lg btn-blue m-2",
+                    attrs: { type: "button" },
+                    on: { click: _vm.turn }
                   },
                   [_vm._v(" Turn ")]
                 ),
@@ -37823,8 +37843,9 @@ var render = function() {
                 _c(
                   "button",
                   {
-                    staticClass: "btn btn-primary btn-lg btn-blue",
-                    attrs: { type: "button" }
+                    staticClass: "btn btn-primary btn-lg btn-blue m-2",
+                    attrs: { type: "button" },
+                    on: { click: _vm.automaticPlay }
                   },
                   [_vm._v(" Automatic Play ")]
                 )
@@ -37835,7 +37856,20 @@ var render = function() {
           _c("b", [
             _vm._v("In order to start the battle 5 armies must be added")
           ])
-        ])
+        ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "row" }, [
+      _c("b", [_vm._v("Battle log")]),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "row container" },
+        _vm._l(_vm.log, function(logitem) {
+          return _c("ul", [_c("li")])
+        }),
+        0
+      )
+    ])
   ])
 }
 var staticRenderFns = []

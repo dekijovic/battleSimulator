@@ -1,7 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Commands\Logs\CreateLog;
+use App\Storage\Logs\LogInterface;
 use Illuminate\Http\Request;
 
 class LogController extends Controller
@@ -11,19 +12,11 @@ class LogController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(int $gameId)
     {
-        //
-    }
+         $result = app(LogInterface::class)->all($gameId);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+         return $this->json($result);
     }
 
     /**
@@ -32,9 +25,10 @@ class LogController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, int $gameId)
     {
-        //
+        $result = dispatch_now(new CreateLog($request->all(), $gameId));
+        return $this->json($result);
     }
 
     /**
