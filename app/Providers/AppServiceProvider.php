@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Storage\Games\ArmyRepository;
-use App\Storage\ArmyInterface;
+use App\Storage\Armies\ArmyRepository;
+use App\Storage\Armies\ArmyInterface;
 use App\Storage\Games\GameRepository;
 use App\Storage\GamesInterface;
 use Illuminate\Support\ServiceProvider;

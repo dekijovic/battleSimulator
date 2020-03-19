@@ -1,8 +1,6 @@
 <?php
-namespace App\Storage\Games;
+namespace App\Storage\Armies;
 
-
-use App\Storage\ArmyInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;

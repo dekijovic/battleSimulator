@@ -2041,49 +2041,68 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ManageGame",
   data: function data() {
     return {
       id: null,
       game: {
-        name: null
+        name: null,
+        status: 'NEW'
       },
       addArmy: {
         name: null,
-        unit: null,
-        strategy: null
+        units: 0,
+        strategy: 'RANDOM'
       },
       armies: []
     };
   },
   mounted: function mounted() {
-    var id = this.$route.params.gameId;
-    this.getGame(id);
-    this.getArmies(id);
+    this.id = this.$route.params.gameId;
+    this.getGame();
+    this.getArmies();
   },
   methods: {
-    getGame: function getGame(id) {
+    getGame: function getGame() {
       var _this = this;
 
-      axios.get("/game/".concat(id)).then(function (response) {
+      axios.get("/game/".concat(this.id)).then(function (response) {
         _this.game = response.data;
       });
     },
-    getArmies: function getArmies(id) {
+    getArmies: function getArmies() {
       var _this2 = this;
 
-      axios.get("/game/".concat(id, "/army")).then(function (response) {
+      axios.get("/game/".concat(this.id, "/army")).then(function (response) {
         _this2.armies = response.data;
       });
     },
     addAnArmy: function addAnArmy() {
       var _this3 = this;
 
-      axios.post("/game/".concat(this.$route.params.gameId, "/army"), this.addArmy).then(function (response) {
-        _this3.game = response.data;
+      axios.post("/game/".concat(this.id, "/army"), this.addArmy).then(function (response) {
+        _this3.game = response.data, _this3.getArmies(_this3.id);
       });
-    }
+    },
+    battleStatus: function battleStatus() {}
   }
 });
 
@@ -37591,15 +37610,22 @@ var render = function() {
       _vm._v("Welcome to the ancient battle of " + _vm._s(_vm.game.name))
     ]),
     _vm._v(" "),
-    _c("h2", { staticClass: "text-center" }, [
+    _c("h5", { staticClass: "text-center" }, [
       _vm._v("Yo are a brave soul standing in this dangerous ground")
     ]),
     _vm._v(" "),
+    _c("div", {
+      staticClass: "row border-top",
+      staticStyle: { height: "50px" }
+    }),
+    _vm._v(" "),
     _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
-        _c("form", [
+        _c("h3", { staticClass: " border-bottom" }, [_vm._v("Add new army")]),
+        _vm._v(" "),
+        _c("form", { staticClass: "border-danger" }, [
           _c("div", { staticClass: "form-group" }, [
-            _c("label", { attrs: { for: "armyname" } }, [_vm._v("Name")]),
+            _c("label", { attrs: { for: "armyname" } }, [_vm._v("Name:")]),
             _vm._v(" "),
             _c("input", {
               directives: [
@@ -37625,29 +37651,75 @@ var render = function() {
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "form-group" }, [
-            _c("label", { attrs: { for: "armyunit" } }, [_vm._v("Unit")]),
+            _c("label", { attrs: { for: "armyunit" } }, [_vm._v("Unit:")]),
             _vm._v(" "),
             _c("input", {
               directives: [
                 {
                   name: "model",
                   rawName: "v-model",
-                  value: _vm.addArmy.name,
-                  expression: "addArmy.name"
+                  value: _vm.addArmy.units,
+                  expression: "addArmy.units"
                 }
               ],
               staticClass: "form-control",
-              attrs: { type: "text", id: "armyunit" },
-              domProps: { value: _vm.addArmy.name },
+              attrs: { type: "number", id: "armyunit" },
+              domProps: { value: _vm.addArmy.units },
               on: {
                 input: function($event) {
                   if ($event.target.composing) {
                     return
                   }
-                  _vm.$set(_vm.addArmy, "name", $event.target.value)
+                  _vm.$set(_vm.addArmy, "units", $event.target.value)
                 }
               }
             })
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "form-group" }, [
+            _c("label", { attrs: { for: "armystrategy" } }, [
+              _vm._v("Strategy:")
+            ]),
+            _vm._v(" "),
+            _c(
+              "select",
+              {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.addArmy.strategy,
+                    expression: "addArmy.strategy"
+                  }
+                ],
+                staticClass: "form-control",
+                attrs: { id: "armystrategy" },
+                on: {
+                  change: function($event) {
+                    var $$selectedVal = Array.prototype.filter
+                      .call($event.target.options, function(o) {
+                        return o.selected
+                      })
+                      .map(function(o) {
+                        var val = "_value" in o ? o._value : o.value
+                        return val
+                      })
+                    _vm.$set(
+                      _vm.addArmy,
+                      "strategy",
+                      $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+                    )
+                  }
+                }
+              },
+              [
+                _c("option", [_vm._v("RANDOM")]),
+                _vm._v(" "),
+                _c("option", [_vm._v("WEAKEST")]),
+                _vm._v(" "),
+                _c("option", [_vm._v("STRONGEST")])
+              ]
+            )
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "form-group" }, [
@@ -37668,19 +37740,24 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "col-8 col-sm-8 col-lg-8" }, [
-        _c("h3", [_vm._v("Armies")]),
+        _c("h3", { staticClass: " border-bottom" }, [_vm._v("Armies")]),
         _vm._v(" "),
         _c(
           "div",
           { staticClass: "container" },
           _vm._l(_vm.armies, function(army) {
-            return _c("div", {}, [
-              _c("span", [
-                _c("i", { staticClass: "rounded-circle" }),
+            return _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
                 _c("b", [_vm._v(_vm._s(army.name))])
               ]),
-              _vm._v("  units:"),
-              _c("span", [_vm._v(_vm._s(army.units))])
+              _vm._v(" "),
+              _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
+                _vm._v("units: " + _vm._s(army.units))
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
+                _vm._v("strategy: " + _vm._s(army.strategy))
+              ])
             ])
           }),
           0
@@ -37688,19 +37765,38 @@ var render = function() {
       ])
     ]),
     _vm._v(" "),
-    _vm._m(0)
+    _vm.armies.length > 4
+      ? _c("div", { staticClass: "row" }, [
+          _vm.game.status === "NEW"
+            ? _c(
+                "button",
+                {
+                  staticClass: "btn btn-primary btn-lg btn-block btn-dark",
+                  attrs: { type: "button" }
+                },
+                [_vm._v(" Start Battle")]
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.game.status === "PROCESS"
+            ? _c(
+                "button",
+                {
+                  staticClass: "btn btn-primary btn-lg btn-block btn-dark",
+                  attrs: { type: "button" }
+                },
+                [_vm._v(" Pause Battle")]
+              )
+            : _vm._e()
+        ])
+      : _c("div", { staticClass: "text-lg-center border-bottom" }, [
+          _c("b", [
+            _vm._v("In order to start the battle 5 armies must be added")
+          ])
+        ])
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "row container" }, [
-      _c("button", [_vm._v(" Start Battle")])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 

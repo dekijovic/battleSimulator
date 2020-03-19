@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Commands\Armies\CreateArmy;
-use App\Commands\Games\CreateGame;
-use App\Storage\ArmyInterface;
+use App\Storage\Armies\ArmyInterface;
 use Illuminate\Http\Request;
 
 class ArmyController extends Controller

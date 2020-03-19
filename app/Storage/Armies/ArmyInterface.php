@@ -1,11 +1,8 @@
 <?php
-namespace App\Storage;
+namespace App\Storage\Armies;
 
-
-use App\Storage\Games\Army;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 interface ArmyInterface
 {

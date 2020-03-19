@@ -4,7 +4,8 @@
 namespace App\Commands\Armies;
 
 
-use App\Storage\ArmyInterface;
+use App\Storage\Armies\ArmyInterface;
+use App\Storage\Armies\Army;
 
 class CreateArmy
 {
@@ -24,9 +25,9 @@ class CreateArmy
 
     /**
      * @param ArmyInterface $repo
-     * @return \App\Storage\Games\Army|null
+     * @return Army|null
      */
-    public function handle(ArmyInterface $repo)
+    public function handle(ArmyInterface $repo):? Army
     {
         return $repo->store($this->data);
     }
