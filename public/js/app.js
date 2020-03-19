@@ -2065,7 +2065,7 @@ __webpack_require__.r(__webpack_exports__);
       id: null,
       game: {
         name: null,
-        status: 'NEW'
+        status: 'START'
       },
       addArmy: {
         name: null,
@@ -2075,10 +2075,13 @@ __webpack_require__.r(__webpack_exports__);
       armies: []
     };
   },
+  computed: {},
   mounted: function mounted() {
     this.id = this.$route.params.gameId;
     this.getGame();
     this.getArmies();
+    console.log(this.armies);
+    console.log('asdgasdgas');
   },
   methods: {
     getGame: function getGame() {
@@ -37611,7 +37614,8 @@ var render = function() {
     ]),
     _vm._v(" "),
     _c("h5", { staticClass: "text-center" }, [
-      _vm._v("Yo are a brave soul standing in this dangerous ground")
+      _vm._v("Yo are a brave soul standing in this dangerous ground - "),
+      _c("b", [_vm._v("Status: " + _vm._s(_vm.game.status))])
     ]),
     _vm._v(" "),
     _c("div", {
@@ -37765,9 +37769,9 @@ var render = function() {
       ])
     ]),
     _vm._v(" "),
-    _vm.armies.length > 4
+    this.armies.length > 4
       ? _c("div", { staticClass: "row" }, [
-          _vm.game.status === "NEW"
+          _vm.game.status === "START"
             ? _c(
                 "button",
                 {

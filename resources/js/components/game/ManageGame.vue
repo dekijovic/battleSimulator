@@ -1,7 +1,7 @@
 <template>
 <div>
     <h1 class="text-center">Welcome to the ancient battle of {{game.name}}</h1>
-    <h5 class="text-center">Yo are a brave soul standing in this dangerous ground</h5>
+    <h5 class="text-center">Yo are a brave soul standing in this dangerous ground - <b>Status: {{game.status}}</b></h5>
     <div class="row border-top" style="height: 50px"></div>
     <div class="row">
         <div class="col-4 col-sm-4 col-lg-4">
@@ -39,8 +39,8 @@
             </div>
         </div>
     </div>
-    <div class="row" v-if="armies.length > 4">
-        <button v-if="game.status === 'NEW'" type="button" class="btn btn-primary btn-lg btn-block btn-dark"> Start Battle</button>
+    <div class="row" v-if="this.armies.length > 4">
+        <button v-if="game.status === 'START'" type="button" class="btn btn-primary btn-lg btn-block btn-dark"> Start Battle</button>
         <button v-if="game.status === 'PROCESS'" type="button" class="btn btn-primary btn-lg btn-block btn-dark"> Pause Battle</button>
     </div>
     <div class="text-lg-center border-bottom" v-else>
@@ -57,7 +57,7 @@ export default {
             id: null,
             game: {
                 name:null,
-                status:'NEW'
+                status:'START'
             },
             addArmy:{
                 name:null,
@@ -67,10 +67,14 @@ export default {
             armies: []
         }
     },
+    computed: {
+    },
     mounted() {
        this.id = this.$route.params.gameId
         this.getGame()
         this.getArmies()
+        console.log(this.armies)
+        console.log('asdgasdgas')
     },
     methods:{
         getGame(){
