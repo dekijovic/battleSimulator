@@ -24,7 +24,7 @@ class GameRepository implements GamesInterface
      */
     public function get(int $id): ?Game
     {
-        return $this->getQuery()->find($id)->get();
+        return $this->getQuery()->find($id)->first();
     }
 
     /**

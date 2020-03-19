@@ -1923,7 +1923,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'ProApp'
@@ -1942,9 +1941,6 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
-//
-//
-//
 //
 //
 //
@@ -2017,8 +2013,78 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: "ManageGame"
+  name: "ManageGame",
+  data: function data() {
+    return {
+      id: null,
+      game: {
+        name: null
+      },
+      addArmy: {
+        name: null,
+        unit: null,
+        strategy: null
+      },
+      armies: []
+    };
+  },
+  mounted: function mounted() {
+    var id = this.$route.params.gameId;
+    this.getGame(id);
+    this.getArmies(id);
+  },
+  methods: {
+    getGame: function getGame(id) {
+      var _this = this;
+
+      axios.get("/game/".concat(id)).then(function (response) {
+        _this.game = response.data;
+      });
+    },
+    getArmies: function getArmies(id) {
+      var _this2 = this;
+
+      axios.get("/game/".concat(id, "/army")).then(function (response) {
+        _this2.armies = response.data;
+      });
+    },
+    addAnArmy: function addAnArmy() {
+      var _this3 = this;
+
+      axios.post("/game/".concat(this.$route.params.gameId, "/army"), this.addArmy).then(function (response) {
+        _this3.game = response.data;
+      });
+    }
+  }
 });
 
 /***/ }),
@@ -37396,7 +37462,7 @@ var render = function() {
   return _c("div", [
     _c(
       "div",
-      { staticClass: "right_col", attrs: { role: "main" } },
+      { staticClass: "container" },
       [
         _c(
           "transition",
@@ -37437,71 +37503,63 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container-fluid" }, [
-    _c("div", { staticClass: "align-content-center" }, [
-      _c("div", { staticClass: "container align-items-center" }, [
-        _c("h1", { staticClass: "text-center" }, [
-          _vm._v("Welcome to battle Simulator")
-        ]),
-        _vm._v(" "),
-        _c("form", { staticStyle: { padding: "50px" } }, [
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.game.name,
-                expression: "game.name"
-              }
-            ],
-            attrs: { type: "text" },
-            domProps: { value: _vm.game.name },
-            on: {
-              input: function($event) {
-                if ($event.target.composing) {
-                  return
-                }
-                _vm.$set(_vm.game, "name", $event.target.value)
-              }
-            }
-          }),
-          _vm._v(" "),
-          _c(
-            "button",
-            {
-              on: {
-                click: function($event) {
-                  $event.preventDefault()
-                  return _vm.createGame($event)
-                }
-              }
-            },
-            [_vm._v("Create Game")]
-          )
-        ])
+  return _c("div", { staticClass: "align-content-center" }, [
+    _c("div", { staticClass: "container align-items-center" }, [
+      _c("h1", { staticClass: "text-center" }, [
+        _vm._v("Welcome to battle Simulator")
       ]),
       _vm._v(" "),
+      _c("form", { staticStyle: { padding: "50px" } }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.game.name,
+              expression: "game.name"
+            }
+          ],
+          attrs: { type: "text" },
+          domProps: { value: _vm.game.name },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.game, "name", $event.target.value)
+            }
+          }
+        }),
+        _vm._v(" "),
+        _c(
+          "button",
+          {
+            on: {
+              click: function($event) {
+                $event.preventDefault()
+                return _vm.createGame($event)
+              }
+            }
+          },
+          [_vm._v("Create Game")]
+        )
+      ])
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "container", staticStyle: { margin: "20px 0" } }, [
+      _c("h2", [_vm._v("list of games")]),
+      _vm._v(" "),
       _c(
-        "div",
-        { staticClass: "container", staticStyle: { margin: "20px 0" } },
-        [
-          _c("h2", [_vm._v("list of games")]),
-          _vm._v(" "),
-          _c(
-            "ul",
-            { staticClass: "list-group" },
-            _vm._l(_vm.games, function(lgame) {
-              return _c("li", { staticClass: "list-group-item" }, [
-                _c("a", { attrs: { href: "/#/game/" + lgame.id } }, [
-                  _vm._v(
-                    _vm._s(lgame.name) + " (" + _vm._s(lgame.game_uuid) + ")"
-                  )
-                ])
-              ])
-            }),
-            0
-          )
-        ]
+        "ul",
+        { staticClass: "list-group" },
+        _vm._l(_vm.games, function(lgame) {
+          return _c("li", { staticClass: "list-group-item" }, [
+            _c("a", { attrs: { href: "/#/game/" + lgame.id } }, [
+              _vm._v(_vm._s(lgame.name) + " (" + _vm._s(lgame.game_uuid) + ")")
+            ])
+          ])
+        }),
+        0
       )
     ])
   ])
@@ -37528,9 +37586,121 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [_vm._v("\n    this is battle game\n")])
+  return _c("div", [
+    _c("h1", { staticClass: "text-center" }, [
+      _vm._v("Welcome to the ancient battle of " + _vm._s(_vm.game.name))
+    ]),
+    _vm._v(" "),
+    _c("h2", { staticClass: "text-center" }, [
+      _vm._v("Yo are a brave soul standing in this dangerous ground")
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
+        _c("form", [
+          _c("div", { staticClass: "form-group" }, [
+            _c("label", { attrs: { for: "armyname" } }, [_vm._v("Name")]),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.addArmy.name,
+                  expression: "addArmy.name"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: { type: "text", id: "armyname" },
+              domProps: { value: _vm.addArmy.name },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.addArmy, "name", $event.target.value)
+                }
+              }
+            })
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "form-group" }, [
+            _c("label", { attrs: { for: "armyunit" } }, [_vm._v("Unit")]),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.addArmy.name,
+                  expression: "addArmy.name"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: { type: "text", id: "armyunit" },
+              domProps: { value: _vm.addArmy.name },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.addArmy, "name", $event.target.value)
+                }
+              }
+            })
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "form-group" }, [
+            _c(
+              "button",
+              {
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    return _vm.addAnArmy()
+                  }
+                }
+              },
+              [_vm._v("Add an Army")]
+            )
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-8 col-sm-8 col-lg-8" }, [
+        _c("h3", [_vm._v("Armies")]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "container" },
+          _vm._l(_vm.armies, function(army) {
+            return _c("div", {}, [
+              _c("span", [
+                _c("i", { staticClass: "rounded-circle" }),
+                _c("b", [_vm._v(_vm._s(army.name))])
+              ]),
+              _vm._v("  units:"),
+              _c("span", [_vm._v(_vm._s(army.units))])
+            ])
+          }),
+          0
+        )
+      ])
+    ]),
+    _vm._v(" "),
+    _vm._m(0)
+  ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "row container" }, [
+      _c("button", [_vm._v(" Start Battle")])
+    ])
+  }
+]
 render._withStripped = true
 
 

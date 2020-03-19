@@ -1,8 +1,7 @@
 <template>
     <div>
         <div
-        class="right_col"
-        role="main">
+        class="container">
         <transition
             name="page"
             enter-active-class="animated fadeInUp" mode="out-in">
