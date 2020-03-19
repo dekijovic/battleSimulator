@@ -1,10 +1,12 @@
 <template>
-
+<div>
+    this is battle game
+</div>
 </template>
 
 <script>
     export default {
-        name: "Game"
+        name: "ManageGame"
     }
 </script>
 
