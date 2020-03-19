@@ -1,7 +1,7 @@
 
 ## BattleSimulation App
 
-App is developed in laravel/vue, docker is used as an environment
+App is developed in laravel/vue, docker is used to build environment
 
 - You need to have docker installed on your machine
 - When download application, to start it, run command : docker-compose up
