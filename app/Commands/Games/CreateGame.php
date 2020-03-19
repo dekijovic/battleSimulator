@@ -30,7 +30,7 @@ class CreateGame implements ShouldQueue
      */
     public function handle(GamesInterface $repo)
     {
-        $this->data['game_id'] = '123534263546345646';
+        $this->data['game_uuid'] = uniqid();
         return $repo->store($this->data);
     }
 }

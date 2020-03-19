@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<link href="{{asset('css/app.css')}}" rel="stylesheet">
 <body>
 <div class="container body">
 
