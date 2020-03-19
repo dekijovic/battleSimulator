@@ -16,7 +16,7 @@ class CreateGamesTable extends Migration
         Schema::create('games', function (Blueprint $table) {
             $table->id();
             $table->text('name');
-            $table->uuid('game_id');
+            $table->uuid('game_uuid');
             $table->timestamps();
         });
     }

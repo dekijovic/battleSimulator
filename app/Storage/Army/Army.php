@@ -4,12 +4,13 @@ namespace App\Storage\Games;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Game extends Model
+class Army extends Model
 {
-    protected $table = 'games';
+    protected $table = 'armies';
 
     protected $fillable = [
         'name',
-        'game_uuid'
+        'units',
+        'game_id'
     ];
 }

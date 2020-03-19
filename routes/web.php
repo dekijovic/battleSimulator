@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GameController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,5 +18,7 @@ Route::get('/', function () {
 
     return view('welcome');
 });
-
-Route::resource('games','GameController');
+Route::get('game/reset', 'GameController@reset');
+Route::resource('game','GameController')->only('index', 'store', 'show');
+Route::resource('game.army','ArmyController');
+Route::resource('log','LogController');

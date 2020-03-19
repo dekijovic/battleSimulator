@@ -4,6 +4,7 @@
 namespace App\Commands\Games;
 
 
+use App\Storage\ArmyInterface;
 use App\Storage\GamesInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,7 +26,7 @@ class CreateGame implements ShouldQueue
 
     /**
      * @param GamesInterface $repo
-     * @return \App\Storage\Games\Game|null
+     * @return \App\Storage\Games\Army|null
      */
     public function handle(GamesInterface $repo)
     {

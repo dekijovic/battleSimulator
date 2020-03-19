@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Storage\Games\ArmyRepository;
+use App\Storage\ArmyInterface;
 use App\Storage\Games\GameRepository;
 use App\Storage\GamesInterface;
 use Illuminate\Support\ServiceProvider;
@@ -26,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app->bind (GamesInterface::class, GameRepository::class);
+        $this->app->bind (ArmyInterface::class, ArmyRepository::class);
     }
 }
