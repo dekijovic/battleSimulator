@@ -2094,7 +2094,7 @@ __webpack_require__.r(__webpack_exports__);
     this.id = this.$route.params.gameId;
     this.getGame();
     this.getArmies();
-    console.log(this.armies);
+    console.log(this.id);
     console.log('asdgasdgas');
   },
   methods: {

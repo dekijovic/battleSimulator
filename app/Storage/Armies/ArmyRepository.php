@@ -27,7 +27,7 @@ class ArmyRepository implements ArmyInterface
      */
     public function get(int $id): ?Army
     {
-        return $this->getQuery()->find($id)->get();
+        return $this->getQuery()->find($id);
     }
 
     /**

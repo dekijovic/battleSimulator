@@ -87,7 +87,7 @@ export default {
        this.id = this.$route.params.gameId
         this.getGame()
         this.getArmies()
-        console.log(this.armies)
+        console.log(this.id)
         console.log('asdgasdgas')
     },
     methods:{
@@ -130,7 +130,7 @@ export default {
                 })
         },
         turn(){
-
+            alert('not finished')
         },
         automaticPlay(){
             alert('not finished')

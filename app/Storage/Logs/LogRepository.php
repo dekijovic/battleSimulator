@@ -26,7 +26,7 @@ class LogRepository implements LogInterface
      */
     public function get(int $id): ?Log
     {
-        return $this->getQuery()->find($id)->get();
+        return $this->getQuery()->find($id);
     }
 
     /**
