@@ -52,9 +52,9 @@
     </div>
     <div class="row">
         <b>Battle log</b>
-        <div class="row container">
-            <ul v-for="logitem in log">
-                <li></li>
+        <div class="">
+            <ul class="list-group list-group-flush" v-for="logitem in log">
+                <li class="list-group-item">Army: {{logitem.attacker}}  attacks {{logitem.defender}}</li>
             </ul>
 
         </div>
@@ -63,6 +63,8 @@
 </template>
 
 <script>
+
+import strategy from '../lib/strategyHelper'
 export default {
     name: "ManageGame",
     data() {
@@ -88,7 +90,7 @@ export default {
         this.getGame()
         this.getArmies()
         console.log(this.id)
-        console.log('asdgasdgas')
+        console.log(this.log)
     },
     methods:{
         getGame(){
@@ -130,12 +132,23 @@ export default {
                 })
         },
         turn(){
-            alert('not finished')
+            let army = [].slice.call(this.armies);
+            let logs = [];
+
+            this.armies.map(function(currentAttacker){
+                let defender = strategy.defender(army, currentAttacker);
+                logs.push({'attacker': currentAttacker.name, 'defender': defender.name})
+            })
+            this.log = logs;
+
+            // attack s/n
+            // damage
+            //
         },
         automaticPlay(){
             alert('not finished')
 
-        }
+        },
     }
 
 }

@@ -2007,6 +2007,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _lib_strategyHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../lib/strategyHelper */ "./resources/js/components/lib/strategyHelper.js");
 //
 //
 //
@@ -2071,6 +2072,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ManageGame",
   data: function data() {
@@ -2095,7 +2097,7 @@ __webpack_require__.r(__webpack_exports__);
     this.getGame();
     this.getArmies();
     console.log(this.id);
-    console.log('asdgasdgas');
+    console.log(this.log);
   },
   methods: {
     getGame: function getGame() {
@@ -2137,7 +2139,20 @@ __webpack_require__.r(__webpack_exports__);
         _this4.game = response.data;
       });
     },
-    turn: function turn() {},
+    turn: function turn() {
+      var army = [].slice.call(this.armies);
+      var logs = [];
+      this.armies.map(function (currentAttacker) {
+        var defender = _lib_strategyHelper__WEBPACK_IMPORTED_MODULE_0__["default"].defender(army, currentAttacker);
+        logs.push({
+          'attacker': currentAttacker.name,
+          'defender': defender.name
+        });
+      });
+      this.log = logs; // attack s/n
+      // damage
+      //
+    },
     automaticPlay: function automaticPlay() {
       alert('not finished');
     }
@@ -37863,9 +37878,18 @@ var render = function() {
       _vm._v(" "),
       _c(
         "div",
-        { staticClass: "row container" },
+        {},
         _vm._l(_vm.log, function(logitem) {
-          return _c("ul", [_c("li")])
+          return _c("ul", { staticClass: "list-group list-group-flush" }, [
+            _c("li", { staticClass: "list-group-item" }, [
+              _vm._v(
+                "Army: " +
+                  _vm._s(logitem.attacker) +
+                  "  attacks " +
+                  _vm._s(logitem.defender)
+              )
+            ])
+          ])
         }),
         0
       )
@@ -53262,6 +53286,59 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ManageGame_vue_vue_type_template_id_3def184e_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
+
+/***/ }),
+
+/***/ "./resources/js/components/lib/strategyHelper.js":
+/*!*******************************************************!*\
+  !*** ./resources/js/components/lib/strategyHelper.js ***!
+  \*******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  unitSorter: function unitSorter(sortingArmies) {
+    sortingArmies.sort(function (a, b) {
+      if (a.units > b.units) {
+        return 1;
+      }
+
+      if (a.units < b.units) {
+        return -1;
+      }
+
+      return 0;
+    });
+    return sortingArmies;
+  },
+  defender: function defender(armies, currentAttacker) {
+    var defenders = this.sortedDefenders(armies, currentAttacker);
+    var defender = 0;
+
+    if (currentAttacker.strategy === "WEAKEST") {
+      defender = defenders[0];
+    }
+
+    if (currentAttacker.strategy === "STRONGEST") {
+      defender = defenders[defenders.length - 1];
+    }
+
+    if (currentAttacker.strategy === "RANDOM") {
+      var rand = Math.floor(Math.random() * Math.floor(sortingArmies.length));
+      defender = defenders[rand];
+    }
+
+    return defender;
+  },
+  sortedDefenders: function sortedDefenders(armies, currentAttacker) {
+    var sortingArmies = this.unitSorter(armies);
+    return sortingArmies.filter(function (army) {
+      return army.id !== currentAttacker.id;
+    });
+  }
+});
 
 /***/ }),
 
