@@ -2072,6 +2072,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ManageGame",
@@ -2143,15 +2150,27 @@ __webpack_require__.r(__webpack_exports__);
       var army = [].slice.call(this.armies);
       var logs = [];
       this.armies.map(function (currentAttacker) {
-        var defender = _lib_strategyHelper__WEBPACK_IMPORTED_MODULE_0__["default"].defender(army, currentAttacker);
-        logs.push({
-          'attacker': currentAttacker.name,
-          'defender': defender.name
+        if (currentAttacker.units > 0) {
+          var defender = _lib_strategyHelper__WEBPACK_IMPORTED_MODULE_0__["default"].defender(army, currentAttacker);
+          var attack = _lib_strategyHelper__WEBPACK_IMPORTED_MODULE_0__["default"].attack(currentAttacker);
+          attack.attacker = currentAttacker.name;
+          attack.defender = defender.name;
+          attack.defenderId = defender.id;
+          logs.push(attack);
+        }
+      });
+      this.armiesDamage(logs);
+      this.log.push(logs);
+    },
+    armiesDamage: function armiesDamage(logs) {
+      this.armies.map(function (army) {
+        logs.map(function (damagedArmy) {
+          if (army.id === damagedArmy.defenderId) {
+            var rampage = army.units - damagedArmy.totalDamage;
+            army.units = rampage < 1 ? 0 : rampage;
+          }
         });
       });
-      this.log = logs; // attack s/n
-      // damage
-      //
     },
     automaticPlay: function automaticPlay() {
       alert('not finished');
@@ -37879,17 +37898,35 @@ var render = function() {
       _c(
         "div",
         {},
-        _vm._l(_vm.log, function(logitem) {
-          return _c("ul", { staticClass: "list-group list-group-flush" }, [
-            _c("li", { staticClass: "list-group-item" }, [
-              _vm._v(
-                "Army: " +
-                  _vm._s(logitem.attacker) +
-                  "  attacks " +
-                  _vm._s(logitem.defender)
-              )
-            ])
-          ])
+        _vm._l(_vm.log, function(logturn, index) {
+          return _c(
+            "ul",
+            { staticClass: "list-group list-group-flush" },
+            [
+              _vm._l(logturn, function(logitem) {
+                return _c("li", { staticClass: "list-group-item" }, [
+                  _vm._v(
+                    "\n                    Army: " +
+                      _vm._s(logitem.attacker) +
+                      "\n                    attacks " +
+                      _vm._s(logitem.defender) +
+                      "\n                    number of attacks: " +
+                      _vm._s(logitem.numberOfAttacks) +
+                      "\n                    success attacks: " +
+                      _vm._s(logitem.successAttacks) +
+                      "\n                    damage: " +
+                      _vm._s(logitem.totalDamage) +
+                      "\n                "
+                  )
+                ])
+              }),
+              _vm._v(" "),
+              _c("div", { staticClass: "border-bottom" }, [
+                _vm._v(_vm._s(index + 1) + ". turn done")
+              ])
+            ],
+            2
+          )
         }),
         0
       )
@@ -53326,7 +53363,7 @@ __webpack_require__.r(__webpack_exports__);
     }
 
     if (currentAttacker.strategy === "RANDOM") {
-      var rand = Math.floor(Math.random() * Math.floor(sortingArmies.length));
+      var rand = Math.floor(Math.random() * Math.floor(defenders.length));
       defender = defenders[rand];
     }
 
@@ -53335,8 +53372,48 @@ __webpack_require__.r(__webpack_exports__);
   sortedDefenders: function sortedDefenders(armies, currentAttacker) {
     var sortingArmies = this.unitSorter(armies);
     return sortingArmies.filter(function (army) {
-      return army.id !== currentAttacker.id;
+      return army.id !== currentAttacker.id || army.units === 0;
     });
+  },
+  attack: function attack(currentAttacker) {
+    var numberOfAttacks = this.numberOfReloads(currentAttacker);
+    var i;
+    var damage = this.damage(currentAttacker);
+    var totalDamage = 0;
+    var successAttacks = 0;
+
+    for (i = 1; i < numberOfAttacks + 1; i++) {
+      if (this.attackSuccess(currentAttacker)) {
+        totalDamage = totalDamage + damage;
+        successAttacks++;
+      }
+    }
+
+    return {
+      numberOfAttacks: numberOfAttacks,
+      totalDamage: totalDamage,
+      successAttacks: successAttacks
+    };
+  },
+  attackSuccess: function attackSuccess(currentAttacker) {
+    var probability = currentAttacker.units;
+    var rand = Math.floor(Math.random() * Math.floor(100));
+
+    if (probability === 100 || rand < probability) {
+      return true;
+    }
+
+    return false;
+  },
+  numberOfReloads: function numberOfReloads(currentAttacker) {
+    return Math.floor(100 / currentAttacker.units);
+  },
+  damage: function damage(currentAttacker) {
+    if (currentAttacker.units > 1) {
+      return currentAttacker.units * 0.5;
+    }
+
+    return 1;
   }
 });
 

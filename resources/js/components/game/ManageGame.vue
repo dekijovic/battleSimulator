@@ -53,8 +53,15 @@
     <div class="row">
         <b>Battle log</b>
         <div class="">
-            <ul class="list-group list-group-flush" v-for="logitem in log">
-                <li class="list-group-item">Army: {{logitem.attacker}}  attacks {{logitem.defender}}</li>
+            <ul class="list-group list-group-flush" v-for="(logturn, index) in log">
+                <li class="list-group-item" v-for="logitem in logturn">
+                    Army: {{logitem.attacker}}
+                    attacks {{logitem.defender}}
+                    number of attacks: {{logitem.numberOfAttacks}}
+                    success attacks: {{logitem.successAttacks}}
+                    damage: {{logitem.totalDamage}}
+                </li>
+            <div class="border-bottom">{{index+1}}. turn done</div>
             </ul>
 
         </div>
@@ -136,14 +143,30 @@ export default {
             let logs = [];
 
             this.armies.map(function(currentAttacker){
-                let defender = strategy.defender(army, currentAttacker);
-                logs.push({'attacker': currentAttacker.name, 'defender': defender.name})
+                if(currentAttacker.units > 0) {
+                    let defender = strategy.defender(army, currentAttacker);
+                    let attack = strategy.attack(currentAttacker)
+                    attack.attacker = currentAttacker.name
+                    attack.defender = defender.name
+                    attack.defenderId = defender.id
+                    logs.push(attack)
+                }
             })
-            this.log = logs;
 
-            // attack s/n
-            // damage
-            //
+            this.armiesDamage(logs)
+
+            this.log.push(logs);
+
+        },
+        armiesDamage(logs){
+            this.armies.map(function(army){
+                logs.map(function(damagedArmy){
+                    if(army.id === damagedArmy.defenderId){
+                        let rampage = army.units - damagedArmy.totalDamage;
+                        army.units = rampage < 1 ? 0 : rampage
+                    }
+                });
+            })
         },
         automaticPlay(){
             alert('not finished')
