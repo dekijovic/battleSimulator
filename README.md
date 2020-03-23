@@ -12,5 +12,6 @@ App is developed in laravel/vue, docker is used to build environment
 - Open application on 127.0.0.1:8081
 
 
+Screenshoot:
 
-<img src="public/img/screenshoot.png" width="600">
+![](public/img/screenshoot.png)
