@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Commands\Games\CreateGame;
+use App\Commands\Games\RestartGame;
 use App\Commands\Games\UpdateGame;
 use App\Storage\GamesInterface;
 use Illuminate\Http\Request;
@@ -56,6 +57,20 @@ class GameController extends Controller
     {
         $result = app(GamesInterface::class)->get($id);
 
+        return $this->json($result);
+    }
+
+    /**
+     * Restart game.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function restart(Request $request, int $id)
+    {
+
+        $result = dispatch_now(new RestartGame($id,$request->all()));
         return $this->json($result);
     }
 }

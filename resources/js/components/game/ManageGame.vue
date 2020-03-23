@@ -27,43 +27,46 @@
                     <button @click.prevent="addAnArmy()">Add an Army</button>
                 </div>
             </form>
-        </div>
-        <div class="col-8 col-sm-8 col-lg-8">
-            <h3 class=" border-bottom">Armies</h3>
-            <div class="container">
-                <div class="row" v-for="army in armies">
-                    <div class="col-4 col-sm-4 col-lg-4"><b>{{army.name}}</b></div>
-                    <div class="col-4 col-sm-4 col-lg-4">units: {{army.units}}</div>
-                    <div class="col-4 col-sm-4 col-lg-4">strategy: {{army.strategy}}</div>
+            <div class="row" v-if="this.armies.length > 4">
+                <button v-if="game.status === 'START'" type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="startBattle"> Start Battle</button>
+                <div class="row col-12" v-if="game.status !== 'START'">
+                    <button :disabled="automatic" type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="restartBattle"> Restart Battle</button>
+                    <button v-if="automatic" type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="pause"> Pause Battle</button>
+                    <button type="button" :disabled="winner !== null" class="btn btn-primary btn-lg btn-blue m-2" @click="turn">{{turnNumber + 1}}. Turn </button>
+                    <button v-if="!automatic" :disabled="winner !== null" type="button" class="btn btn-primary btn-lg btn-blue m-2" @click="automaticPlay"> Automatic Play </button>
                 </div>
             </div>
+            <div class="text-lg-center border-bottom" v-else>
+                <b>In order to start the battle 5 armies must be added</b>
+            </div>
         </div>
-    </div>
-    <div class="row" v-if="this.armies.length > 4">
-        <button v-if="game.status === 'START'" type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="battleStatus"> Start Battle</button>
-        <div class="row col-12" v-if="game.status === 'PROCESS'">
-            <button type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="battleStatus"> Restart Battle</button>
-            <button type="button" class="btn btn-primary btn-lg btn-blue m-2" @click="turn"> Turn </button>
-            <button type="button" class="btn btn-primary btn-lg btn-blue m-2" @click="automaticPlay"> Automatic Play </button>
-        </div>
-    </div>
-    <div class="text-lg-center border-bottom" v-else>
-        <b>In order to start the battle 5 armies must be added</b>
-    </div>
-    <div class="row">
-        <b>Battle log</b>
-        <div class="">
-            <ul class="list-group list-group-flush" v-for="(logturn, index) in log">
-                <li class="list-group-item" v-for="logitem in logturn">
-                    Army: {{logitem.attacker}}
-                    attacks {{logitem.defender}}
-                    number of attacks: {{logitem.numberOfAttacks}}
-                    success attacks: {{logitem.successAttacks}}
-                    damage: {{logitem.totalDamage}}
-                </li>
-            <div class="border-bottom">{{index+1}}. turn done</div>
-            </ul>
+        <div class="col-8 col-sm-8 col-lg-8">
+            <div style="margin-bottom: 30px;">
+                <h3 class=" border-bottom">Armies <span class="colored text-bold" v-if="winner !== null"> Winner is {{winner.name}}</span></h3>
+                <div class="container border">
+                    <div class="row" v-for="army in armies">
+                        <div class="col-4 col-sm-4 col-lg-4"><b>{{army.name}}</b></div>
+                        <div class="col-4 col-sm-4 col-lg-4">units: {{army.units}}</div>
+                        <div class="col-4 col-sm-4 col-lg-4">strategy: {{army.strategy}}</div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h4>Battle log</h4>
+                <div class="">
+                    <ul class="list-group list-group-flush" v-for="(logturn) in logs">
+                        <li class="list-group-item" v-for="logitem in logturn.log">
+                            Army: {{logitem.attacker}}
+                            attacks {{logitem.defender}}
+                            number of attacks: {{logitem.numberOfAttacks}}
+                            success attacks: {{logitem.successAttacks}}
+                            damage: {{logitem.totalDamage}}
+                        </li>
+                        <div class="border-bottom">{{logturn.turn}}. turn done</div>
+                    </ul>
 
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -71,7 +74,7 @@
 
 <script>
 
-import strategy from '../lib/strategyHelper'
+import battle from '../lib/battleActions'
 export default {
     name: "ManageGame",
     data() {
@@ -87,7 +90,10 @@ export default {
                 strategy:'RANDOM'
             },
             armies: [],
-            log:[]
+            logs:[],
+            turnNumber:0,
+            winner:null,
+            automatic:false
         }
     },
     computed: {
@@ -96,20 +102,29 @@ export default {
        this.id = this.$route.params.gameId
         this.getGame()
         this.getArmies()
-        console.log(this.id)
-        console.log(this.log)
     },
     methods:{
         getGame(){
             axios.get(`/game/${ this.id}`)
                 .then((response) => {
-                    this.game = response.data
+                    this.game = response.data;
+                    if(this.game.status !== 'START') {
+                        this.getLog()
+                    }
                 })
         },
         getArmies(){
             axios.get(`/game/${ this.id}/army`)
                 .then((response) => {
                     this.armies = response.data
+                })
+        },
+        getLog(){
+            axios.get(`/game/${this.id}/log`)
+                .then((response) => {
+                    this.logs = response.data;
+                    this.loggedArmiesDamage();
+                    this.checkStatus()
                 })
         },
         addAnArmy(){
@@ -120,14 +135,30 @@ export default {
                 })
 
         },
-        battleStatus(){
+        updateArmy(id, peyload){
+            axios.put(`/game/${this.id}/army/${id}`,peyload)
+                .then((response) => {
+                    this.bindWinnerToArmy(this.id)
+                })
+
+        },
+        restartBattle(){
+            axios.put(`/game/${this.id}/restart`,
+                {
+                    status:"START"
+                }
+            )
+                .then((response) => {
+                    this.game = response.data;
+                    this.logs = this.game.logs;
+                    this.armies = this.game.armies;
+                    this.turnNumber = 0;
+                })
+        },
+        startBattle(){
 
             if(this.game.status === "START"){
                 this.game.status = "PROCESS"
-                this.updateGame();
-            }
-            if(this.game.status === "PROCESS"){
-                this.game.status = "START"
                 this.updateGame();
             }
 
@@ -139,28 +170,32 @@ export default {
                 })
         },
         turn(){
+            this.turnNumber++
             let army = [].slice.call(this.armies);
-            let logs = [];
-
+            let log = [];
             this.armies.map(function(currentAttacker){
                 if(currentAttacker.units > 0) {
-                    let defender = strategy.defender(army, currentAttacker);
-                    let attack = strategy.attack(currentAttacker)
+                    let defender = battle.defender(army, currentAttacker);
+                    let attack = battle.attack(currentAttacker)
                     attack.attacker = currentAttacker.name
                     attack.defender = defender.name
                     attack.defenderId = defender.id
-                    logs.push(attack)
+                    log.push(attack)
                 }
             })
 
-            this.armiesDamage(logs)
+            this.armiesDamage(log)
 
-            this.log.push(logs);
+            this.createLog(log);
+
+            this.logs.push({log:log, turn: this.turnNumber.valueOf()});
+
+            this.findWinner()
 
         },
-        armiesDamage(logs){
+        armiesDamage(log){
             this.armies.map(function(army){
-                logs.map(function(damagedArmy){
+                log.map(function(damagedArmy){
                     if(army.id === damagedArmy.defenderId){
                         let rampage = army.units - damagedArmy.totalDamage;
                         army.units = rampage < 1 ? 0 : rampage
@@ -168,10 +203,64 @@ export default {
                 });
             })
         },
+        loggedArmiesDamage(){
+            let self = this
+            this.logs.map(function (log) {
+                self.armiesDamage(log.log)
+            })
+            this.turnNumber = this.logs[this.logs.length-1].turn
+        },
+        createLog(log){
+            axios.post(`/game/${this.id}/log`,
+                {
+                    turn:this.turnNumber,
+                    log:log
+                }
+            )
+                .then((response) => {
+                    console.log(response.data)
+                })
+        },
+        findWinner(){
+            let armies = [].slice.call(this.armies);
+           let filteredArmies = armies.filter(function(army){
+               return army.units > 0
+            })
+
+            if(filteredArmies.length === 1){
+                this.winner = filteredArmies[0]
+                this.game.status = "FINISH"
+                this.updateGame()
+                this.updateArmy(this.winner.id, {winner:true})
+            }
+        },
         automaticPlay(){
-            alert('not finished')
+            this.automatic = true;
 
         },
+        pause(){
+            this.automatic = false;
+
+        },
+        bindWinnerToArmy(id){
+            this.armies.map(function (army) {
+                if(army.id === id){
+                    army.winner = true
+                }
+            })
+        },
+        checkStatus(){
+            if(this.game.status === 'FINISH'){
+                let winnerArmy = null;
+                console.log(this.armies);
+                this.armies.map(function (army) {
+                    if(army.winner){
+                        winnerArmy = army
+                    }
+                })
+                this.winner = winnerArmy
+            }
+        }
     }
 
 }

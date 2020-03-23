@@ -16,8 +16,12 @@ class Log extends Model
     protected $table = 'logs';
 
     protected $fillable = [
-        'message',
+        'log',
         'game_id',
+        'turn'
+    ];
+    protected $casts = [
+        'log' => 'array',
     ];
 
     /**

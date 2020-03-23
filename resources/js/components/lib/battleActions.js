@@ -36,7 +36,7 @@ export default {
         let sortingArmies = this.unitSorter(armies)
         return sortingArmies.filter(function(army){
 
-            return army.id !== currentAttacker.id || army.units === 0
+            return army.id !== currentAttacker.id && army.units > 0
         })
     },
     attack(currentAttacker){
@@ -62,7 +62,7 @@ export default {
 
         let probability = currentAttacker.units;
         let rand = Math.floor(Math.random() * Math.floor(100));
-        if(probability === 100 || rand < probability){
+        if(rand < probability){
             return true
         }
         return false
@@ -72,7 +72,7 @@ export default {
     },
     damage(currentAttacker){
         if(currentAttacker.units > 1) {
-            return currentAttacker.units * 0.5
+            return Math.round(currentAttacker.units) * 0.5
         }
         return 1
     }

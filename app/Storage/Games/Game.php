@@ -3,6 +3,7 @@
 namespace App\Storage\Games;
 
 use App\Storage\Armies\Army;
+use App\Storage\Logs\Log;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -24,6 +25,13 @@ class Game extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function armies(){
-        return  $this->hasMany( Game::class);
+        return  $this->hasMany( Army::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function logs(){
+        return  $this->hasMany( Log::class);
     }
 }

@@ -2007,7 +2007,10 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _lib_strategyHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../lib/strategyHelper */ "./resources/js/components/lib/strategyHelper.js");
+/* harmony import */ var _lib_battleActions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../lib/battleActions */ "./resources/js/components/lib/battleActions.js");
+//
+//
+//
 //
 //
 //
@@ -2095,7 +2098,10 @@ __webpack_require__.r(__webpack_exports__);
         strategy: 'RANDOM'
       },
       armies: [],
-      log: []
+      logs: [],
+      turnNumber: 0,
+      winner: null,
+      automatic: false
     };
   },
   computed: {},
@@ -2103,8 +2109,6 @@ __webpack_require__.r(__webpack_exports__);
     this.id = this.$route.params.gameId;
     this.getGame();
     this.getArmies();
-    console.log(this.id);
-    console.log(this.log);
   },
   methods: {
     getGame: function getGame() {
@@ -2112,6 +2116,10 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.get("/game/".concat(this.id)).then(function (response) {
         _this.game = response.data;
+
+        if (_this.game.status !== 'START') {
+          _this.getLog();
+        }
       });
     },
     getArmies: function getArmies() {
@@ -2121,50 +2129,81 @@ __webpack_require__.r(__webpack_exports__);
         _this2.armies = response.data;
       });
     },
-    addAnArmy: function addAnArmy() {
+    getLog: function getLog() {
       var _this3 = this;
 
-      axios.post("/game/".concat(this.id, "/army"), this.addArmy).then(function (response) {
-        _this3.game = response.data, _this3.getArmies(_this3.id);
+      axios.get("/game/".concat(this.id, "/log")).then(function (response) {
+        _this3.logs = response.data;
+
+        _this3.loggedArmiesDamage();
+
+        _this3.checkStatus();
       });
     },
-    battleStatus: function battleStatus() {
+    addAnArmy: function addAnArmy() {
+      var _this4 = this;
+
+      axios.post("/game/".concat(this.id, "/army"), this.addArmy).then(function (response) {
+        _this4.game = response.data, _this4.getArmies(_this4.id);
+      });
+    },
+    updateArmy: function updateArmy(id, peyload) {
+      var _this5 = this;
+
+      axios.put("/game/".concat(this.id, "/army/").concat(id), peyload).then(function (response) {
+        _this5.bindWinnerToArmy(_this5.id);
+      });
+    },
+    restartBattle: function restartBattle() {
+      var _this6 = this;
+
+      axios.put("/game/".concat(this.id, "/restart"), {
+        status: "START"
+      }).then(function (response) {
+        _this6.game = response.data;
+        _this6.logs = _this6.game.logs;
+        _this6.armies = _this6.game.armies;
+        _this6.turnNumber = 0;
+      });
+    },
+    startBattle: function startBattle() {
       if (this.game.status === "START") {
         this.game.status = "PROCESS";
         this.updateGame();
       }
-
-      if (this.game.status === "PROCESS") {
-        this.game.status = "START";
-        this.updateGame();
-      }
     },
     updateGame: function updateGame() {
-      var _this4 = this;
+      var _this7 = this;
 
       axios.put("/game/".concat(this.id), this.game).then(function (response) {
-        _this4.game = response.data;
+        _this7.game = response.data;
       });
     },
     turn: function turn() {
+      this.turnNumber++;
       var army = [].slice.call(this.armies);
-      var logs = [];
+      var log = [];
       this.armies.map(function (currentAttacker) {
         if (currentAttacker.units > 0) {
-          var defender = _lib_strategyHelper__WEBPACK_IMPORTED_MODULE_0__["default"].defender(army, currentAttacker);
-          var attack = _lib_strategyHelper__WEBPACK_IMPORTED_MODULE_0__["default"].attack(currentAttacker);
+          var defender = _lib_battleActions__WEBPACK_IMPORTED_MODULE_0__["default"].defender(army, currentAttacker);
+          var attack = _lib_battleActions__WEBPACK_IMPORTED_MODULE_0__["default"].attack(currentAttacker);
           attack.attacker = currentAttacker.name;
           attack.defender = defender.name;
           attack.defenderId = defender.id;
-          logs.push(attack);
+          log.push(attack);
         }
       });
-      this.armiesDamage(logs);
-      this.log.push(logs);
+      this.armiesDamage(log);
+      this.createLog(log);
+      this.logs.push({
+        log: log,
+        turn: this.turnNumber.valueOf()
+      });
+      this.findWinner();
     },
-    armiesDamage: function armiesDamage(logs) {
+    armiesDamage: function armiesDamage(log) {
       this.armies.map(function (army) {
-        logs.map(function (damagedArmy) {
+        log.map(function (damagedArmy) {
           if (army.id === damagedArmy.defenderId) {
             var rampage = army.units - damagedArmy.totalDamage;
             army.units = rampage < 1 ? 0 : rampage;
@@ -2172,8 +2211,60 @@ __webpack_require__.r(__webpack_exports__);
         });
       });
     },
+    loggedArmiesDamage: function loggedArmiesDamage() {
+      var self = this;
+      this.logs.map(function (log) {
+        self.armiesDamage(log.log);
+      });
+      this.turnNumber = this.logs[this.logs.length - 1].turn;
+    },
+    createLog: function createLog(log) {
+      axios.post("/game/".concat(this.id, "/log"), {
+        turn: this.turnNumber,
+        log: log
+      }).then(function (response) {
+        console.log(response.data);
+      });
+    },
+    findWinner: function findWinner() {
+      var armies = [].slice.call(this.armies);
+      var filteredArmies = armies.filter(function (army) {
+        return army.units > 0;
+      });
+
+      if (filteredArmies.length === 1) {
+        this.winner = filteredArmies[0];
+        this.game.status = "FINISH";
+        this.updateGame();
+        this.updateArmy(this.winner.id, {
+          winner: true
+        });
+      }
+    },
     automaticPlay: function automaticPlay() {
-      alert('not finished');
+      this.automatic = true;
+    },
+    pause: function pause() {
+      this.automatic = false;
+    },
+    bindWinnerToArmy: function bindWinnerToArmy(id) {
+      this.armies.map(function (army) {
+        if (army.id === id) {
+          army.winner = true;
+        }
+      });
+    },
+    checkStatus: function checkStatus() {
+      if (this.game.status === 'FINISH') {
+        var winnerArmy = null;
+        console.log(this.armies);
+        this.armies.map(function (army) {
+          if (army.winner) {
+            winnerArmy = army;
+          }
+        });
+        this.winner = winnerArmy;
+      }
     }
   }
 });
@@ -37809,127 +37900,158 @@ var render = function() {
               [_vm._v("Add an Army")]
             )
           ])
-        ])
+        ]),
+        _vm._v(" "),
+        this.armies.length > 4
+          ? _c("div", { staticClass: "row" }, [
+              _vm.game.status === "START"
+                ? _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary btn-lg btn-block btn-dark",
+                      attrs: { type: "button" },
+                      on: { click: _vm.startBattle }
+                    },
+                    [_vm._v(" Start Battle")]
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.game.status !== "START"
+                ? _c("div", { staticClass: "row col-12" }, [
+                    _c(
+                      "button",
+                      {
+                        staticClass:
+                          "btn btn-primary btn-lg btn-block btn-dark",
+                        attrs: { disabled: _vm.automatic, type: "button" },
+                        on: { click: _vm.restartBattle }
+                      },
+                      [_vm._v(" Restart Battle")]
+                    ),
+                    _vm._v(" "),
+                    _vm.automatic
+                      ? _c(
+                          "button",
+                          {
+                            staticClass:
+                              "btn btn-primary btn-lg btn-block btn-dark",
+                            attrs: { type: "button" },
+                            on: { click: _vm.pause }
+                          },
+                          [_vm._v(" Pause Battle")]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-primary btn-lg btn-blue m-2",
+                        attrs: {
+                          type: "button",
+                          disabled: _vm.winner !== null
+                        },
+                        on: { click: _vm.turn }
+                      },
+                      [_vm._v(_vm._s(_vm.turnNumber + 1) + ". Turn ")]
+                    ),
+                    _vm._v(" "),
+                    !_vm.automatic
+                      ? _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-primary btn-lg btn-blue m-2",
+                            attrs: {
+                              disabled: _vm.winner !== null,
+                              type: "button"
+                            },
+                            on: { click: _vm.automaticPlay }
+                          },
+                          [_vm._v(" Automatic Play ")]
+                        )
+                      : _vm._e()
+                  ])
+                : _vm._e()
+            ])
+          : _c("div", { staticClass: "text-lg-center border-bottom" }, [
+              _c("b", [
+                _vm._v("In order to start the battle 5 armies must be added")
+              ])
+            ])
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "col-8 col-sm-8 col-lg-8" }, [
-        _c("h3", { staticClass: " border-bottom" }, [_vm._v("Armies")]),
-        _vm._v(" "),
-        _c(
-          "div",
-          { staticClass: "container" },
-          _vm._l(_vm.armies, function(army) {
-            return _c("div", { staticClass: "row" }, [
-              _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
-                _c("b", [_vm._v(_vm._s(army.name))])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
-                _vm._v("units: " + _vm._s(army.units))
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
-                _vm._v("strategy: " + _vm._s(army.strategy))
-              ])
-            ])
-          }),
-          0
-        )
-      ])
-    ]),
-    _vm._v(" "),
-    this.armies.length > 4
-      ? _c("div", { staticClass: "row" }, [
-          _vm.game.status === "START"
-            ? _c(
-                "button",
-                {
-                  staticClass: "btn btn-primary btn-lg btn-block btn-dark",
-                  attrs: { type: "button" },
-                  on: { click: _vm.battleStatus }
-                },
-                [_vm._v(" Start Battle")]
-              )
-            : _vm._e(),
-          _vm._v(" "),
-          _vm.game.status === "PROCESS"
-            ? _c("div", { staticClass: "row col-12" }, [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-primary btn-lg btn-block btn-dark",
-                    attrs: { type: "button" },
-                    on: { click: _vm.battleStatus }
-                  },
-                  [_vm._v(" Restart Battle")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-primary btn-lg btn-blue m-2",
-                    attrs: { type: "button" },
-                    on: { click: _vm.turn }
-                  },
-                  [_vm._v(" Turn ")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-primary btn-lg btn-blue m-2",
-                    attrs: { type: "button" },
-                    on: { click: _vm.automaticPlay }
-                  },
-                  [_vm._v(" Automatic Play ")]
-                )
-              ])
-            : _vm._e()
-        ])
-      : _c("div", { staticClass: "text-lg-center border-bottom" }, [
-          _c("b", [
-            _vm._v("In order to start the battle 5 armies must be added")
-          ])
-        ]),
-    _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("b", [_vm._v("Battle log")]),
-      _vm._v(" "),
-      _c(
-        "div",
-        {},
-        _vm._l(_vm.log, function(logturn, index) {
-          return _c(
-            "ul",
-            { staticClass: "list-group list-group-flush" },
-            [
-              _vm._l(logturn, function(logitem) {
-                return _c("li", { staticClass: "list-group-item" }, [
-                  _vm._v(
-                    "\n                    Army: " +
-                      _vm._s(logitem.attacker) +
-                      "\n                    attacks " +
-                      _vm._s(logitem.defender) +
-                      "\n                    number of attacks: " +
-                      _vm._s(logitem.numberOfAttacks) +
-                      "\n                    success attacks: " +
-                      _vm._s(logitem.successAttacks) +
-                      "\n                    damage: " +
-                      _vm._s(logitem.totalDamage) +
-                      "\n                "
-                  )
+        _c("div", { staticStyle: { "margin-bottom": "30px" } }, [
+          _c("h3", { staticClass: " border-bottom" }, [
+            _vm._v("Armies "),
+            _vm.winner !== null
+              ? _c("span", { staticClass: "colored text-bold" }, [
+                  _vm._v(" Winner is " + _vm._s(_vm.winner.name))
                 ])
-              }),
-              _vm._v(" "),
-              _c("div", { staticClass: "border-bottom" }, [
-                _vm._v(_vm._s(index + 1) + ". turn done")
+              : _vm._e()
+          ]),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "container border" },
+            _vm._l(_vm.armies, function(army) {
+              return _c("div", { staticClass: "row" }, [
+                _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
+                  _c("b", [_vm._v(_vm._s(army.name))])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
+                  _vm._v("units: " + _vm._s(army.units))
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-4 col-sm-4 col-lg-4" }, [
+                  _vm._v("strategy: " + _vm._s(army.strategy))
+                ])
               ])
-            ],
-            2
+            }),
+            0
           )
-        }),
-        0
-      )
+        ]),
+        _vm._v(" "),
+        _c("div", [
+          _c("h4", [_vm._v("Battle log")]),
+          _vm._v(" "),
+          _c(
+            "div",
+            {},
+            _vm._l(_vm.logs, function(logturn) {
+              return _c(
+                "ul",
+                { staticClass: "list-group list-group-flush" },
+                [
+                  _vm._l(logturn.log, function(logitem) {
+                    return _c("li", { staticClass: "list-group-item" }, [
+                      _vm._v(
+                        "\n                            Army: " +
+                          _vm._s(logitem.attacker) +
+                          "\n                            attacks " +
+                          _vm._s(logitem.defender) +
+                          "\n                            number of attacks: " +
+                          _vm._s(logitem.numberOfAttacks) +
+                          "\n                            success attacks: " +
+                          _vm._s(logitem.successAttacks) +
+                          "\n                            damage: " +
+                          _vm._s(logitem.totalDamage) +
+                          "\n                        "
+                      )
+                    ])
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "border-bottom" }, [
+                    _vm._v(_vm._s(logturn.turn) + ". turn done")
+                  ])
+                ],
+                2
+              )
+            }),
+            0
+          )
+        ])
+      ])
     ])
   ])
 }
@@ -53326,10 +53448,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/lib/strategyHelper.js":
-/*!*******************************************************!*\
-  !*** ./resources/js/components/lib/strategyHelper.js ***!
-  \*******************************************************/
+/***/ "./resources/js/components/lib/battleActions.js":
+/*!******************************************************!*\
+  !*** ./resources/js/components/lib/battleActions.js ***!
+  \******************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -53372,7 +53494,7 @@ __webpack_require__.r(__webpack_exports__);
   sortedDefenders: function sortedDefenders(armies, currentAttacker) {
     var sortingArmies = this.unitSorter(armies);
     return sortingArmies.filter(function (army) {
-      return army.id !== currentAttacker.id || army.units === 0;
+      return army.id !== currentAttacker.id && army.units > 0;
     });
   },
   attack: function attack(currentAttacker) {
@@ -53399,7 +53521,7 @@ __webpack_require__.r(__webpack_exports__);
     var probability = currentAttacker.units;
     var rand = Math.floor(Math.random() * Math.floor(100));
 
-    if (probability === 100 || rand < probability) {
+    if (rand < probability) {
       return true;
     }
 
@@ -53410,7 +53532,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   damage: function damage(currentAttacker) {
     if (currentAttacker.units > 1) {
-      return currentAttacker.units * 0.5;
+      return Math.round(currentAttacker.units) * 0.5;
     }
 
     return 1;

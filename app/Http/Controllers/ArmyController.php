@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Commands\Armies\CreateArmy;
+use App\Commands\Armies\UpdateArmy;
 use App\Storage\Armies\ArmyInterface;
 use Illuminate\Http\Request;
 
@@ -51,9 +52,10 @@ class ArmyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $gameId, int $id)
     {
-        //
+        $result = dispatch_now(new UpdateArmy($request->all(), $id));
+        return $this->json($result);
     }
 
     /**

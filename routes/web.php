@@ -18,7 +18,7 @@ Route::get('/', function () {
 
     return view('welcome');
 });
-Route::get('game/reset', 'GameController@reset');
+Route::put('game/{id}/restart', 'GameController@restart');
 Route::resource('game','GameController');
 Route::resource('game.army','ArmyController');
-Route::resource('log','LogController');
+Route::resource('game.log','LogController')->only('index', 'store');

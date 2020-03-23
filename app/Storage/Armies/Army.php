@@ -18,7 +18,8 @@ class Army extends Model
         'name',
         'units',
         'game_id',
-        'strategy'
+        'strategy',
+        'winner'
     ];
 
     /**

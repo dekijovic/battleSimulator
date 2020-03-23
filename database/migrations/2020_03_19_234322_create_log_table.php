@@ -17,7 +17,8 @@ class CreateLogTable extends Migration
             $table->id();
             $table->unsignedBigInteger('game_id');
             $table->foreign('game_id')->references('id')->on('games');
-            $table->text('message');
+            $table->json('log');
+            $table->integer('turn')->nullable(false);
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ class CreateLogTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('log');
+        Schema::dropIfExists('logs');
     }
 }
