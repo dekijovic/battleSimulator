@@ -13,4 +13,4 @@ App is developed in laravel/vue, docker is used to build environment
 
 
 
-<img src="public/img/screenshoot.png" width="300">
+<img src="public/img/screenshoot.png" width="600">
