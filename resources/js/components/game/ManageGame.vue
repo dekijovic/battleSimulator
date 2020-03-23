@@ -156,6 +156,7 @@ export default {
                     this.logs = this.game.logs;
                     this.armies = this.game.armies;
                     this.turnNumber = 0;
+                    this.winner = null;
                 })
         },
         startBattle(){
@@ -211,7 +212,9 @@ export default {
             this.logs.map(function (log) {
                 self.armiesDamage(log.log)
             })
-            this.turnNumber = this.logs[this.logs.length-1].turn
+            if(this.logs.length > 0) {
+                this.turnNumber = this.logs[this.logs.length - 1].turn
+            }
         },
         createLog(log){
             axios.post(`/game/${this.id}/log`,
@@ -232,6 +235,7 @@ export default {
 
             if(filteredArmies.length === 1){
                 this.winner = filteredArmies[0]
+                this.automatic = false;
                 this.game.status = "FINISH"
                 this.updateGame()
                 this.updateArmy(this.winner.id, {winner:true})
@@ -239,6 +243,11 @@ export default {
         },
         automaticPlay(){
             this.automatic = true;
+            let i = 1
+            while ((this.winner === null && this.automatic === true) || i < 100 ) {
+                i++
+                this.turn()
+            }
 
         },
         pause(){

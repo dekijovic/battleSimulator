@@ -2167,6 +2167,7 @@ __webpack_require__.r(__webpack_exports__);
         _this6.logs = _this6.game.logs;
         _this6.armies = _this6.game.armies;
         _this6.turnNumber = 0;
+        _this6.winner = null;
       });
     },
     startBattle: function startBattle() {
@@ -2219,7 +2220,10 @@ __webpack_require__.r(__webpack_exports__);
       this.logs.map(function (log) {
         self.armiesDamage(log.log);
       });
-      this.turnNumber = this.logs[this.logs.length - 1].turn;
+
+      if (this.logs.length > 0) {
+        this.turnNumber = this.logs[this.logs.length - 1].turn;
+      }
     },
     createLog: function createLog(log) {
       axios.post("/game/".concat(this.id, "/log"), {
@@ -2237,6 +2241,7 @@ __webpack_require__.r(__webpack_exports__);
 
       if (filteredArmies.length === 1) {
         this.winner = filteredArmies[0];
+        this.automatic = false;
         this.game.status = "FINISH";
         this.updateGame();
         this.updateArmy(this.winner.id, {
@@ -2246,6 +2251,12 @@ __webpack_require__.r(__webpack_exports__);
     },
     automaticPlay: function automaticPlay() {
       this.automatic = true;
+      var i = 1;
+
+      while (this.winner === null && this.automatic === true || i < 100) {
+        i++;
+        this.turn();
+      }
     },
     pause: function pause() {
       this.automatic = false;
