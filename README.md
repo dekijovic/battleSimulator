@@ -11,3 +11,6 @@ App is developed in laravel/vue, docker is used to build environment
 - Run npm : npm run watch
 - Open application on 127.0.0.1:8081
 
+
+
+<img src="public/img/screenshoot.png" width="300">

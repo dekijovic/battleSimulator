@@ -2082,6 +2082,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ManageGame",
@@ -37981,14 +37984,7 @@ var render = function() {
       _vm._v(" "),
       _c("div", { staticClass: "col-8 col-sm-8 col-lg-8" }, [
         _c("div", { staticStyle: { "margin-bottom": "30px" } }, [
-          _c("h3", { staticClass: " border-bottom" }, [
-            _vm._v("Armies "),
-            _vm.winner !== null
-              ? _c("span", { staticClass: "colored text-bold" }, [
-                  _vm._v(" Winner is " + _vm._s(_vm.winner.name))
-                ])
-              : _vm._e()
-          ]),
+          _c("h3", { staticClass: " border-bottom" }, [_vm._v("Armies")]),
           _vm._v(" "),
           _c(
             "div",
@@ -38010,6 +38006,14 @@ var render = function() {
             }),
             0
           )
+        ]),
+        _vm._v(" "),
+        _c("div", [
+          _vm.winner !== null
+            ? _c("h1", { staticClass: "text-danger text-bold" }, [
+                _vm._v(" Winner is " + _vm._s(_vm.winner.name))
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", [

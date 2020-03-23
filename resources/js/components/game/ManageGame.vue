@@ -42,7 +42,7 @@
         </div>
         <div class="col-8 col-sm-8 col-lg-8">
             <div style="margin-bottom: 30px;">
-                <h3 class=" border-bottom">Armies <span class="colored text-bold" v-if="winner !== null"> Winner is {{winner.name}}</span></h3>
+                <h3 class=" border-bottom">Armies</h3>
                 <div class="container border">
                     <div class="row" v-for="army in armies">
                         <div class="col-4 col-sm-4 col-lg-4"><b>{{army.name}}</b></div>
@@ -50,6 +50,9 @@
                         <div class="col-4 col-sm-4 col-lg-4">strategy: {{army.strategy}}</div>
                     </div>
                 </div>
+            </div>
+            <div>
+                <h1 class="text-danger text-bold" v-if="winner !== null"> Winner is {{winner.name}}</h1>
             </div>
             <div>
                 <h4>Battle log</h4>
