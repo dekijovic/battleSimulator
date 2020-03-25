@@ -33,7 +33,7 @@
                     <button :disabled="automatic" type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="restartBattle"> Restart Battle</button>
                     <button v-if="automatic" type="button" class="btn btn-primary btn-lg btn-block btn-dark" @click="pause"> Pause Battle</button>
                     <button type="button" :disabled="winner !== null" class="btn btn-primary btn-lg btn-blue m-2" @click="turn">{{turnNumber + 1}}. Turn </button>
-                    <button v-if="!automatic" :disabled="winner !== null" type="button" class="btn btn-primary btn-lg btn-blue m-2" @click="automaticPlay"> Automatic Play </button>
+                    <button v-if="!automatic" :disabled="winner !== null" type="button" class="btn btn-primary btn-lg btn-blue m-2" @click="automaticPlay"> Quick battle </button>
                 </div>
             </div>
             <div class="text-lg-center border-bottom" v-else>

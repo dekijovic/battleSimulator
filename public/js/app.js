@@ -37980,7 +37980,7 @@ var render = function() {
                             },
                             on: { click: _vm.automaticPlay }
                           },
-                          [_vm._v(" Automatic Play ")]
+                          [_vm._v(" Quick battle ")]
                         )
                       : _vm._e()
                   ])
